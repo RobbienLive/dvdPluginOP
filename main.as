@@ -8,30 +8,30 @@ int i = 0;
 
 const uint DVD_PALETTE_COUNT = 24;
 uint[] dvdPalette = {
-    0xFF0000CC, // red
-    0xFF4000CC, // orange-red
-    0xFF8000CC, // orange
-    0xFFBF00CC, // amber
-    0xFFFF00CC, // yellow
-    0xBFFF00CC, // yellow-green
-    0x80FF00CC, // lime-green
-    0x40FF00CC, // spring green
-    0x00FF00CC, // green
-    0x00FF40CC, // turquoise-green
-    0x00FF80CC, // aquamarine
-    0x00FFBFCC, // cyan-green
-    0x00FFFFCC, // cyan
-    0x00BFFFCC, // deep sky blue
-    0x0080FFCC, // dodger blue
-    0x0040FFCC, // royal blue
-    0x0000FFCC, // blue
-    0x4000FFCC, // violet-blue
-    0x8000FFCC, // blue-violet
-    0xBF00FFCC, // violet
-    0xFF00FFCC, // magenta
-    0xFF00BFCC, // pink-magenta
-    0xFF0080CC, // hot pink
-    0xFF0040CC, // light red
+    0xFF0000AA, // red
+    0xFF4000AA, // orange-red
+    0xFF8000AA, // orange
+    0xFFBF00AA, // amber
+    0xFFFF00AA, // yellow
+    0xBFFF00AA, // yellow-green
+    0x80FF00AA, // lime-green
+    0x40FF00AA, // spring green
+    0x00FF00AA, // green
+    0x00FF40AA, // turquoise-green
+    0x00FF80AA, // aquamarine
+    0x00FFBFAA, // cyan-green
+    0x00FFFFAA, // cyan
+    0x00BFFFAA, // deep sky blue
+    0x0080FFAA, // dodger blue
+    0x0040FFAA, // royal blue
+    0x0000FFAA, // blue
+    0x4000FFAA, // violet-blue
+    0x8000FFAA, // blue-violet
+    0xBF00FFAA, // violet
+    0xFF00FFAA, // magenta
+    0xFF00BFAA, // pink-magenta
+    0xFF0080AA, // hot pink
+    0xFF0040AA, // light red
 };
 
 uint currentColor = dvdPalette[0];
@@ -67,7 +67,6 @@ void MoveDVDLogo(float screenW, float screenH) {
 
     if (bounced) {
         i += 1;
-        print(i);
         i = i % 24; // Cycle through the palette
         currentColor = dvdPalette[i];
     }
