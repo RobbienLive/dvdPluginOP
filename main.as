@@ -5,6 +5,9 @@ float imgX = 0, imgY = 0;
 float velX = 5, velY = 5;
 float imgWidth = 225, imgHeight = 128; // Set to your image's size
 int i = 0;
+bool disabled = false;
+
+float dvdSpeed = 5.0f; // Default speed
 
 const uint DVD_PALETTE_COUNT = 24;
 uint[] dvdPalette = {
@@ -40,8 +43,34 @@ void Main() {
     @dvdLogo = UI::LoadTexture("dvd_logo.png");
 }
 
+void RenderMenu()
+{
+  if (UI::MenuItem("DVD Logo", "", !disabled)) {
+    disabled = !disabled;
+    if (disabled) {
+        UI::SetTooltip("Disabled");
+        print("Disabled DVD Logo");
+    } else {
+        print("Enabled DVD Logo");
+        UI::SetTooltip("Enabled");
+    }
+  }
+}
+
+[SettingsTab name="DVD Logo"]
+void RenderSettings() {
+    float oldSpeed = dvdSpeed;
+    dvdSpeed = UI::SliderFloat("Logo Speed", dvdSpeed, 1.0f, 30.0f);
+    if (dvdSpeed != oldSpeed) {
+        UpdateVelocity();
+    }
+    UI::Text("Current speed: " + Text::Format("%.1f", dvdSpeed));
+}
+
 void Render() {
-    MoveDVDLogo(1920, 1080);
+    if (!disabled) {
+        MoveDVDLogo(1920, 1080);
+    }
 }
 
 void MoveDVDLogo(float screenW, float screenH) {
@@ -75,6 +104,18 @@ void MoveDVDLogo(float screenW, float screenH) {
     if (dvdLogo !is null) {
         UI::DrawList@ dl = UI::GetBackgroundDrawList();
         dl.AddImage(dvdLogo, vec2(imgX, imgY), vec2(imgWidth, imgHeight), currentColor);
+    }
+}
+
+// Update velocity when speed changes
+void UpdateVelocity() {
+    float norm = Math::Sqrt(velX * velX + velY * velY);
+    if (norm > 0.0f) {
+        velX = (velX / norm) * dvdSpeed;
+        velY = (velY / norm) * dvdSpeed;
+    } else {
+        velX = dvdSpeed;
+        velY = dvdSpeed;
     }
 }
 
