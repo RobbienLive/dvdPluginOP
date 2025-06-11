@@ -9,7 +9,7 @@
 
 UI::Texture@ dvdLogo;         // The DVD logo texture
 bool disabled = false;        // If true, the logo is hidden/paused
-float dvdSpeed = 5.0f;        // Logo movement speed
+float dvdSpeed = 5.7f;        // Logo movement speed
 int logoCount = 1;            // Number of logos to show
 
 void Main() {
