@@ -1,16 +1,30 @@
 //
 // DVD Logo Plugin - Logic
 // ----------------------
-// Handles the movement, color cycling, and drawing of the DVD logo.
-// Expects dvdLogo, dvdSpeed, and disabled to be defined in main.as.
+// Handles the movement, color cycling, and drawing of multiple DVD logos.
+// Expects dvdLogo, dvdSpeed, and logoCount to be defined in main.as.
 //
 // Author: RobbienLive
 //
 
-float imgX = 0, imgY = 0;           // Logo position
-float velX = 5, velY = 5;           // Logo velocity
+// --- Struct for a single logo instance ---
+class DVDLogo {
+    float x, y;
+    float vx, vy;
+    uint color;
+    int paletteIdx;
+
+    DVDLogo(float startX, float startY, float startVX, float startVY, int paletteIdx = 0) {
+        x = startX;
+        y = startY;
+        vx = startVX;
+        vy = startVY;
+        this.paletteIdx = paletteIdx;
+        color = dvdPalette[paletteIdx % DVD_PALETTE_COUNT];
+    }
+}
+
 float imgWidth = 225, imgHeight = 128; // Logo size (adjust to your image)
-int i = 0;                          // Color palette index
 
 // 24-color palette for the logo edge bounces
 const uint DVD_PALETTE_COUNT = 24;
@@ -20,54 +34,76 @@ uint[] dvdPalette = {
     0x00FFFFAA, 0x00BFFFAA, 0x0080FFAA, 0x0040FFAA, 0x0000FFAA, 0x4000FFAA,
     0x8000FFAA, 0xBF00FFAA, 0xFF00FFAA, 0xFF00BFAA, 0xFF0080AA, 0xFF0040AA
 };
-uint currentColor = dvdPalette[0];
 
-/// Moves the DVD logo, bounces it off the screen edges, and cycles color.
-/// Draws the logo at its current position.
-/// @param screenW The width of the screen.
-/// @param screenH The height of the screen.
-void MoveDVDLogo(float screenW, float screenH) {
-    imgX += velX;
-    imgY += velY;
+array<DVDLogo@> dvdLogos;
 
-    bool bounced = false;
-
-    // Bounce off left/right
-    if (imgX <= 0 || imgX + imgWidth >= screenW) {
-        velX = -velX;
-        imgX = clamp(imgX, 0, screenW - imgWidth);
-        bounced = true;
+/// Sets the number of logos on screen, adding/removing as needed.
+void SetLogoCount(int count) {
+    // Remove extra logos
+    while (dvdLogos.Length > count) {
+        dvdLogos.RemoveLast();
     }
-    // Bounce off top/bottom
-    if (imgY <= 0 || imgY + imgHeight >= screenH) {
-        velY = -velY;
-        imgY = clamp(imgY, 0, screenH - imgHeight);
-        bounced = true;
-    }
-
-    // Cycle color on bounce
-    if (bounced) {
-        i += 1;
-        i = i % DVD_PALETTE_COUNT;
-        currentColor = dvdPalette[i];
-    }
-
-    // Draw the image at the new position using fixed dimensions
-    if (dvdLogo !is null) {
-        UI::DrawList@ dl = UI::GetBackgroundDrawList();
-        dl.AddImage(dvdLogo, vec2(imgX, imgY), vec2(imgX + imgWidth, imgY + imgHeight), currentColor);
+    // Add new logos
+    while (dvdLogos.Length < count) {
+        float x = Math::Rand(0, 1600);
+        float y = Math::Rand(0, 800);
+        float angle = Math::Rand(0.0f, 2 * Math::PI);
+        float speed = dvdSpeed;
+        float vx = Math::Cos(angle) * speed;
+        float vy = Math::Sin(angle) * speed;
+        int paletteIdx = int(Math::Rand(0, DVD_PALETTE_COUNT));
+        dvdLogos.InsertLast(DVDLogo(x, y, vx, vy, paletteIdx));
     }
 }
 
-/// Updates the velocity of the logo based on the current speed.
+/// Moves and draws all DVD logos, bouncing and cycling color as needed.
+void MoveDVDLogoAll(float screenW, float screenH) {
+    for (uint idx = 0; idx < dvdLogos.Length; ++idx) {
+        DVDLogo@ logo = dvdLogos[idx];
+        logo.x += logo.vx;
+        logo.y += logo.vy;
+
+        bool bounced = false;
+
+        // Bounce off left/right
+        if (logo.x <= 0 || logo.x + imgWidth >= screenW) {
+            logo.vx = -logo.vx;
+            logo.x = clamp(logo.x, 0, screenW - imgWidth);
+            bounced = true;
+        }
+        // Bounce off top/bottom
+        if (logo.y <= 0 || logo.y + imgHeight >= screenH) {
+            logo.vy = -logo.vy;
+            logo.y = clamp(logo.y, 0, screenH - imgHeight);
+            bounced = true;
+        }
+
+        // Cycle color on bounce
+        if (bounced) {
+            logo.paletteIdx = (logo.paletteIdx + 1) % DVD_PALETTE_COUNT;
+            logo.color = dvdPalette[logo.paletteIdx];
+        }
+
+        // Draw the image at the new position using fixed dimensions
+        if (dvdLogo !is null) {
+            UI::DrawList@ dl = UI::GetBackgroundDrawList();
+            dl.AddImage(dvdLogo, vec2(logo.x, logo.y), vec2(imgWidth, imgHeight), logo.color);
+        }
+    }
+}
+
+/// Updates the velocity of all logos based on the current speed.
 void UpdateVelocity() {
-    float norm = Math::Sqrt(velX * velX + velY * velY);
-    if (norm > 0.0f) {
-        velX = (velX / norm) * dvdSpeed;
-        velY = (velY / norm) * dvdSpeed;
-    } else {
-        velX = dvdSpeed;
-        velY = dvdSpeed;
+    for (uint idx = 0; idx < dvdLogos.Length; ++idx) {
+        DVDLogo@ logo = dvdLogos[idx];
+        float norm = Math::Sqrt(logo.vx * logo.vx + logo.vy * logo.vy);
+        if (norm > 0.0f) {
+            logo.vx = (logo.vx / norm) * dvdSpeed;
+            logo.vy = (logo.vy / norm) * dvdSpeed;
+        } else {
+            logo.vx = dvdSpeed;
+            logo.vy = dvdSpeed;
+        }
     }
 }
 
