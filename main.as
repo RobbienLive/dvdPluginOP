@@ -25,7 +25,7 @@ void RenderMenu() {
 }
 
 // Renders the settings tab in the Openplanet UI
-[SettingsTab name="DVD Logo"]
+[SettingsTab name="DVD Overlay"]
 void RenderSettings() {
     // Slider to control number of logos
     int oldLogoCount = logoCount;
@@ -40,7 +40,6 @@ void RenderSettings() {
     if (dvdSpeed != oldSpeed) {
         UpdateVelocity();
     }
-    UI::Text("Current speed: " + Text::Format("%.1f", dvdSpeed));
 }
 
 // Called every frame to render the logos (if enabled)
