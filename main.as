@@ -18,14 +18,9 @@ void Main() {
 }
 
 void RenderMenu() {
-    // Show the DVD logo as an icon in the menu
-    if (UI::MenuItem("DVD Logo", "", !disabled, dvdLogo)) {
+    // Use the VideoCamera icon in orange color in the menu
+    if (UI::MenuItem("\\$fa0" + Icons::VideoCamera + "\\$z DVD Logo", "", !disabled)) {
         disabled = !disabled;
-        if (disabled) {
-            UI::SetTooltip("Disabled");
-        } else {
-            print("Enabled DVD Logo");
-        }
     }
 }
 
